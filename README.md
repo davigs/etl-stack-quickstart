@@ -13,3 +13,9 @@ cp dev.env .env
 rm dev.env
 docker compose up
 ```
+
+### Projects
+
+1. [mage.ai](http://127.0.0.1:6789)
+2. [minio](http://127.0.0.1:9000)
+3. [pgadmin](http://127.0.0.1:8080)
