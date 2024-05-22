@@ -171,3 +171,5 @@ node_modules
 *secrets*.json
 .env
 your-first-project
+/data*
+/mage-quickstart*

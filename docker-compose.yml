@@ -1,6 +1,5 @@
-version: '3'
 services:
-  magic-dbt:
+  mageai:
     image: mageai/mageai:latest
     command: mage start ${PROJECT_NAME}
     env_file:
@@ -15,6 +14,10 @@ services:
       POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
       POSTGRES_USER: ${POSTGRES_USER}
       PROJECT_NAME: ${PROJECT_NAME}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      AWS_REGION: ${AWS_REGION}
     ports:
       - 6789:6789
     volumes:
@@ -22,9 +25,8 @@ services:
     restart: on-failure:5
   
   postgres:
-    image: postgres:10.5
+    image: postgres:latest
     restart: on-failure:5
-    container_name: ${PROJECT_NAME}-postgres
     env_file:
       - .env
     environment:
@@ -33,3 +35,31 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${PG_HOST_PORT}:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@localhost.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - 8080:80
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+
+  minio:
+    image: quay.io/minio/minio
+    restart: on-failure:5
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./data/minio:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
